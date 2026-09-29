@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiKla - Portal</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div id="loginView" class="container" style="max-width: 400px; margin: 100px auto;">
+        <h2 style="color: #0284c7; text-align: center;">DigiKla Login</h2>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="email" id="loginEmail" placeholder="E-Mail">
+            <input type="password" id="loginPassword" placeholder="Passwort">
+            <button class="btn btn-primary" onclick="login()">Einloggen</button>
+            <p id="loginError" style="color: #ef4444; font-size: 14px; text-align: center; margin: 0;"></p>
+        </div>
+    </div>
+
+    <div id="appView" style="display: none;">
+        <header class="main-header">
+            <div class="logo" onclick="zeigeDashboard()" style="cursor: pointer;">DigiKla</div>
+            <div class="user-info">
+                <span id="angemeldeterUser">Lade Profil...</span>
+                <span id="userRolleBadge" class="status-badge user-badge">Lehrer</span>
+                <span id="schuljahrAnzeige" style="margin-right: 15px; color: var(--warning); font-weight: bold;"></span>
+                
+                <select id="klassenAuswahl" onchange="stundenplanKlasseLadenAndRendern()" style="margin-right: 10px; display:none;"></select>
+                <input type="date" id="aktuellesDatum" onchange="datumGeaendert()">
+                
+                <button id="adminPanelBtn" class="btn btn-secondary" onclick="zeigeAdminPanel()" style="display:none; margin-left:10px;">⚙ Admin</button>
+                <button id="stundenplanEditBtn" class="btn btn-secondary" onclick="zeigeStundenplanEditor()" style="display:none; margin-left:10px;">📅 Plan bearbeiten</button>
+                <button class="btn btn-secondary" onclick="logout()" style="padding: 4px 10px; margin-left: 15px;">Logout</button>
+            </div>
+        </header>
+
+        <main class="content-container">
+            
+            <section id="dashboardView">
+                <div class="section-header">
+                    <h2>Mein Arbeitsbereich</h2>
+                    <div class="info-badges">
+                        <span id="wochenTypAnzeige" class="status-badge" style="background: var(--primary);">A-Woche</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    
+                    <div class="dashboard-col card">
+                        <div class="col-header">
+                            <h3>Abwesenheiten Heute</h3>
+                        </div>
+                        <div class="absences-container">
+                            <div class="absence-group">
+                                <h4 style="color: var(--success); margin-bottom: 5px;">✔ Entschuldigt</h4>
+                                <ul id="listeEntschuldigt" class="dashboard-list"></ul>
+                            </div>
+                            <div class="absence-group" style="margin-top: 15px;">
+                                <h4 style="color: var(--warning); margin-bottom: 5px;">⏳ Abgemeldet / Ausflug</h4>
+                                <ul id="listeAbgemeldet" class="dashboard-list"></ul>
+                            </div>
+                            <div class="absence-group" style="margin-top: 15px;">
+                                <h4 style="color: var(--danger); margin-bottom: 5px;">❌ Unentschuldigt</h4>
+                                <ul id="listeUnentschuldigt" class="dashboard-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-col card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px; text-align: center; color: #64748b;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🗓️</div>
+                        <h3>Willkommen im Arbeitsbereich</h3>
+                        <p style="max-width: 300px; font-size: 14px; margin: 0 auto 20px auto;">Wähle rechts ein Klassenbuch oder eine andere Klasse aus, um die Tagesübersicht und Stundenpläne zu bearbeiten.</p>
+                        <div class="todo-box" style="width: 100%; max-width: 280px; text-align: left;">
+                            <div class="todo-item alert-warning">
+                                <span>Nicht signierte Stunden</span>
+                                <span class="badge-count" id="countUnsigniert">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-col">
+                        
+                        <div class="card">
+                            <h3>Klassenbuch</h3>
+                            <p style="font-size: 13px; color: #94a3b8; margin-top: -5px; margin-bottom: 15px;">Deine Standard-Klassen im Fachunterricht:</p>
+                            <div class="quick-links-grid" id="meineKlassenLinks"></div>
+                        </div>
+
+                        <div class="card" style="margin-top: 20px;">
+                            <h3>Stundenplan anderer Klassen</h3>
+                            <p style="font-size: 13px; color: #94a3b8; margin-top: -5px; margin-bottom: 15px;">Klassenbuch einer fremden Klasse aufrufen:</p>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select id="klassenAuswahlDashboard" style="width: 100%;">
+                                    <option value="">-- Klasse wählen --</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="oeffneFremdeKlasse()">Öffnen</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="klassenbuchView" style="display: none;">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button class="btn btn-secondary" onclick="zeigeDashboard()">🡠 Zum Arbeitsbereich</button>
+                        <h2 id="klassenTitel">Klassenbuch Übersicht</h2>
+                    </div>
+                    <div class="info-badges">
+                        <span id="klassenleiterInfo" class="status-badge" style="background: var(--bg-input);">Klassenleiter: Lade...</span>
+                    </div>
+                </div>
+                
+                <table class="stunden-tabelle">
+                    <thead>
+                        <tr>
+                            <th>Stunde</th>
+                            <th>Unterricht</th>
+                            <th>Unterrichtsthema</th>
+                            <th>Hausaufgaben</th>
+                            <th>Lehrer</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tagesStundenBody"></tbody>
+                </table>
+            </section>
+
+            <section id="detailView" style="display: none;">
+                <div class="detail-top-bar">
+                    <div>
+                        <button class="btn btn-secondary" onclick="zurueckAusDetails()">🡠 Zurück</button>
+                    </div>
+                    <h2 id="detailStundeTitel">Stunden-Details</h2>
+                    
+                    <div id="detailAktionsButtons" style="display: flex; gap: 10px;">
+                        <button id="btnUnterrichtAendern" class="btn btn-secondary" onclick="unterrichtAendernDialog()">Unterricht ändern</button>
+                        <button id="btnUnterrichtUebernehmen" class="btn btn-secondary" onclick="unterrichtUebernehmenDialog()">Unterricht übernehmen</button>
+                        <button id="btnUnterrichtSignieren" class="btn btn-primary" onclick="stundeSignieren()">Unterricht signieren</button>
+                        <button id="btnSignumZuruecknehmen" class="btn btn-danger" onclick="signumZuruecknehmen()" style="display:none;">Signum zurücknehmen</button>
+                    </div>
+                </div>
+
+                <div id="statusHinweisBox" style="display:none; padding:10px; border-radius:4px; margin-bottom:15px; text-align:center; font-weight:bold;"></div>
+
+                <div class="detail-grid">
+                    <div class="detail-left">
+                        <div class="card">
+                            <h3>Unterrichtsthema</h3>
+                            <textarea id="unterrichtsInhalt" placeholder="Unterrichtsinhalt hier eintragen..."></textarea>
+                        </div>
+                        <div class="card">
+                            <h3>Hausaufgaben erstellen</h3>
+                            <textarea id="hausaufgabenInhalt" placeholder="Hausaufgaben..."></textarea>
+                        </div>
+                    </div>
+                    <div class="detail-right card">
+                        <h3>Schülerübersicht</h3>
+                        <ul class="schueler-anwesenheits-liste" id="schuelerDetailListe"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="stundenplanEditorView" style="display: none;">
+                <div class="detail-top-bar">
+                    <button class="btn btn-secondary" onclick="zurueckAusDetails()">🡠 Zurück</button>
+                    <h2>Stundenplan bearbeiten</h2>
+                </div>
+                <div class="card" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <label>Wochentag wählen:</label>
+                        <select id="editWochentag" onchange="ladeEditorPlanForDay()">
+                            <option value="1">Montag</option>
+                            <option value="2">Dienstag</option>
+                            <option value="3">Mittwoch</option>
+                            <option value="4">Donnerstag</option>
+                            <option value="5">Freitag</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Wochentyp:</label>
+                        <select id="editWochenTyp" onchange="ladeEditorPlanForDay()">
+                            <option value="A">A-Woche</option>
+                            <option value="B">B-Woche</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card">
+                    <table class="stunden-tabelle">
+                        <thead>
+                            <tr>
+                                <th>Stunde</th>
+                                <th>Zeit</th>
+                                <th>Fach</th>
+                                <th>Lehrer-Kürzel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorStundenBody"></tbody>
+                    </table>
+                    <button class="btn btn-primary" style="margin-top:20px;" onclick="speichereStundenplan()">Stundenplan speichern</button>
+                </div>
+            </section>
+
+            <section id="adminPanelView" style="display: none;">
+                <div class="detail-top-bar">
+                    <button class="btn btn-secondary" onclick="zeigeDashboard()">🡠 Zurück</button>
+                    <h2>Admin-Verwaltung</h2>
+                </div>
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="btnTabKlassen" onclick="wechsleAdminTab('klassen')">Klassen & Schüler</button>
+                    <button class="btn btn-secondary" id="btnTabEinstellungen" onclick="wechsleAdminTab('einstellungen')">Grundeinstellungen & Lehrer</button>
+                </div>
+
+                <div id="adminTabKlassen" class="detail-grid">
+                    <div class="card">
+                        <h3>Klassen verwalten</h3>
+                        <input type="text" id="adminKlassenName" placeholder="z.B. 8rt" style="margin-bottom:10px;"><br>
+                        <input type="text" id="adminKlassenleiterUID" placeholder="Klassenleiter User-UID" style="margin-bottom:10px;"><br>
+                        <button class="btn btn-primary" onclick="adminKlasseErstellen()">Klasse erstellen / aktualisieren</button>
+                    </div>
+                    <div class="card">
+                        <h3>Schüler anlegen & zuweisen</h3>
+                        <input type="text" id="adminSchuelerName" placeholder="Name des Schülers" style="margin-bottom:10px;"><br>
+                        <input type="text" id="adminSchuelerKlasse" placeholder="Klasse (z.B. 8rt)" style="margin-bottom:10px;"><br>
+                        <button class="btn btn-primary" onclick="adminSchuelerAnlegen()">Schüler registrieren</button>
+                    </div>
+                </div>
+
+                <div id="adminTabEinstellungen" style="display: none;">
+                    <div class="card">
+                        <h3>Allgemeine Schuldaten</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <label>Schuljahr (z.B. 2025/2026):</label>
+                                <input type="text" id="setupSchuljahr" placeholder="2025/2026" style="width:100%;">
+                            </div>
+                            <div>
+                                <label>Anfangsdatum:</label>
+                                <input type="date" id="setupStartDatum" style="width:100%;">
+                            </div>
+                            <div>
+                                <label>Enddatum:</label>
+                                <input type="date" id="setupEndDatum" style="width:100%;">
+                            </div>
+                        </div>
+                        <h3>Unterrichtszeiten definieren</h3>
+                        <table class="stunden-tabelle" style="max-width: 500px;">
+                            <thead>
+                                <tr><th>Stunde</th><th>Zeitspanne</th></tr>
+                            </thead>
+                            <tbody id="setupZeitenBody"></tbody>
+                        </table>
+                        <button class="btn btn-primary" style="margin-top: 20px;" onclick="speichereGrundeinstellungen()">Grundeinstellungen sichern</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Lehrer-Profile anlegen</h3>
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <label>Voller Name:</label>
+                                <input type="text" id="setupLehrerName" placeholder="Herr Mustermann" style="width:100%;">
+                            </div>
+                            <div>
+                                <label>Kürzel:</label>
+                                <input type="text" id="setupLehrerKuerzel" placeholder="MUST" style="width:100%;">
+                            </div>
+                            <div>
+                                <label>User-UID:</label>
+                                <input type="text" id="setupLehrerUID" placeholder="4kLp9x..." style="width:100%;">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="adminLehrerAnlegen()">Lehrer-Profil speichern</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
