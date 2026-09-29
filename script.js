@@ -1,12 +1,12 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyDca_7n2rtIBVVUEMep4l_D610mZKaK0uw",
-    authDomain: "digikla.firebaseapp.com",
-    projectId: "digikla",
-    storageBucket: "digikla.firebasestorage.app",
-    messagingSenderId: "640958457111",
-    appId: "1:640958457111:web:d0be4e9e598d0675148352",
-    measurementId: "G-CNPR7H4YKP"
-};
+    apiKey: "AIzaSyAwCqACtAT0WQz9yvnE604n8P_hFodRQjA",
+    authDomain: "digikla-fhg.firebaseapp.com",
+    projectId: "digikla-fhg",
+    storageBucket: "digikla-fhg.firebasestorage.app",
+    messagingSenderId: "325888030036",
+    appId: "1:325888030036:web:3f13d470e68017400044c1"
+  };
+
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
