@@ -1,313 +1,220 @@
+/* DigiKla – Design "Tafelgrün": helles Papier, dunkle Tafel-Kopfzeile, Kreide-Gelb als Akzent */
 :root {
-    --bg-main: #0f172a;
-    --bg-card: #1e293b;
-    --bg-input: #334155;
-    --primary: #0284c7;
-    --primary-hover: #0369a1;
-    --text: #f8fafc;
-    --border: #475569;
-    --success: #22c55e;
-    --danger: #ef4444;
-    --warning: #f59e0b;
+    --bg-main: #f3f4f1;
+    --bg-card: #ffffff;
+    --bg-input: #eceee9;
+    --primary: #2f6b5b;
+    --primary-hover: #245547;
+    --text: #1d2723;
+    --muted: #66736d;
+    --border: #d6dbd5;
+    --success: #2e7d4f;
+    --success-soft: #d9efe2;
+    --danger: #b3372f;
+    --warning: #a86a0c;
+    --tafel: #1f3d36;
+    --kreide: #f0c94a;
 }
+
+* { box-sizing: border-box; }
 
 body {
     font-family: 'Segoe UI', system-ui, sans-serif;
     background-color: var(--bg-main);
     color: var(--text);
     margin: 0;
-    padding: 0;
+    line-height: 1.5;
 }
 
+h1, h2, h3, h4 { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; color: var(--tafel); margin: 0 0 8px; }
+h2 { font-size: 24px; }
+h3 { font-size: 18px; }
+h4 { font-size: 15px; }
+
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- Login ---------- */
 .container {
-    background-color: var(--bg-card);
+    background: var(--bg-card);
     padding: 30px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid var(--border);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-top: 6px solid var(--tafel);
 }
 
+/* ---------- Kopfzeile ---------- */
 .main-header {
-    background-color: #0f172a;
-    border-bottom: 2px solid var(--border);
-    padding: 15px 30px;
+    background: var(--tafel);
+    color: #fff;
+    padding: 12px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
-
-.logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--primary);
+.logo { font-family: Georgia, serif; font-size: 24px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+.user-info { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.main-header select, .main-header input[type="date"] {
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.3);
+    color-scheme: dark;
 }
+.main-header option { color: var(--text); background: #fff; }
+.main-header .btn-secondary { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+.main-header .btn-secondary:hover { background: rgba(255,255,255,.26); }
+#schuljahrAnzeige { color: var(--kreide) !important; }
 
-.user-info {
-    display: flex;
-    align-items: center;
-}
+.status-badge { display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--bg-input); color: var(--text); }
+.user-badge { background: var(--kreide) !important; color: #2b2300; margin-left: 10px; margin-right: 15px; }
+#wochenTypAnzeige { background: var(--primary) !important; color: #fff; }
 
-.user-info select, .user-info input, input[type="email"], input[type="password"], input[type="text"], select, label + input {
+.content-container { padding: 28px; max-width: 1450px; margin: 0 auto; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.info-badges { display: flex; gap: 10px; align-items: center; }
+
+/* ---------- Formularfelder ---------- */
+input[type="email"], input[type="password"], input[type="text"], input[type="number"], input[type="date"], select {
     padding: 8px 12px;
-    background: var(--bg-card);
+    background: #fff;
     border: 1px solid var(--border);
-    color: white;
-    border-radius: 4px;
-    box-sizing: border-box;
+    color: var(--text);
+    border-radius: 6px;
+    font: inherit;
 }
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #94a3b8;
-}
-
-.user-badge {
-    background: var(--primary);
-    margin-left: 10px;
-    margin-right: 15px;
-}
-
-.content-container {
-    padding: 30px;
-    max-width: 1450px;
-    margin: 0 auto;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.stunden-tabelle {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--bg-card);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 10px;
-}
-
-.stunden-tabelle th {
-    background-color: #111827;
-    color: var(--primary);
-}
-
-.stunden-tabelle th, .stunden-tabelle td {
-    padding: 12px 14px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle; 
-    line-height: 1.4;       
-}
-
-.stunden-tabelle input {
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    color: white;
-    padding: 6px;
-    border-radius: 4px;
-    width: 90%;
-}
-
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-hover); }
-.btn-secondary { background: var(--bg-input); color: white; }
-.btn-secondary:hover { background: #475569; }
-.btn-danger { background: var(--danger); color: white; }
-.btn-danger:hover { background: #b91c1c; }
-
-.btn:disabled, textarea:disabled, select:disabled {
-    background: #1e293b !important;
-    color: #64748b !important;
-    border: 1px solid #334155 !important;
-    cursor: not-allowed !important;
-    opacity: 0.6;
-}
-
-.detail-top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 20px;
-}
-
-.card {
-    background: var(--bg-card);
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    margin-bottom: 20px;
-}
+label { display: block; margin-bottom: 5px; font-size: 14px; color: var(--muted); }
 
 textarea {
     width: 100%;
     height: 120px;
-    background: var(--bg-input);
+    background: #fff;
     border: 1px solid var(--border);
-    color: white;
+    color: var(--text);
     padding: 10px;
-    border-radius: 4px;
-    resize: none;
-    box-sizing: border-box;
+    border-radius: 6px;
+    resize: vertical;
     font-family: inherit;
-}
-
-.schueler-anwesenheits-liste {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.schueler-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 10px;
-    border-bottom: 1px solid var(--border);
-}
-
-select.status-select {
-    padding: 6px;
-    background: var(--bg-input);
-    color: white;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-}
-
-.fach-haupttext {
-    font-weight: bold;
     font-size: 15px;
 }
 
-.vertretung-subtext {
-    font-size: 11px;
-    color: var(--warning);
-    margin-top: 3px;        
-    display: block;         
+/* ---------- Buttons ---------- */
+.btn { padding: 8px 16px; border: 1px solid transparent; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 600; transition: background .15s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: #fff; color: var(--tafel); border-color: var(--border); }
+.btn-secondary:hover { background: var(--bg-input); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #8f2a24; }
+.col-header .btn-danger { background: var(--warning); }
+
+.btn:disabled, textarea:disabled, select:disabled {
+    background: var(--bg-input) !important;
+    color: var(--muted) !important;
+    border: 1px solid var(--border) !important;
+    cursor: not-allowed !important;
+    opacity: .8;
 }
 
-.ausfall-text {
-    font-size: 11px;
-    color: var(--danger);
-    display: block;
-    margin-top: 2px;
-}
+/* ---------- Karten & Tabellen ---------- */
+.card { background: var(--bg-card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
 
-/* -------------------------------------------------------------------------- */
-/* ARBEITSBEREICH GRID */
-/* -------------------------------------------------------------------------- */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.3fr 1fr;
-    gap: 20px;
-    align-items: start;
-}
+.stunden-tabelle { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 10px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
+.stunden-tabelle th { background: var(--tafel); color: #fff; font-weight: 600; }
+.stunden-tabelle th, .stunden-tabelle td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.stunden-tabelle tbody tr:hover { background: #f7f8f5; }
+.stunden-tabelle input { width: 90%; padding: 6px; }
 
-@media (max-width: 1050px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
+/* ---------- Stunden-Details ---------- */
+.detail-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.detail-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; }
+@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
 
-.col-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+.schueler-anwesenheits-liste { list-style: none; padding: 0; margin: 0; }
+.schueler-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
+select.status-select { padding: 6px; }
 
+.fach-haupttext { font-weight: 700; font-size: 15px; }
+.vertretung-subtext { font-size: 12px; color: var(--warning); margin-top: 3px; display: block; }
+.ausfall-text { font-size: 12px; color: var(--danger); display: block; margin-top: 2px; }
+#statusHinweisBox { color: var(--text); border: 1px solid var(--border); }
+
+/* ---------- Arbeitsbereich ---------- */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 1050px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+.col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .col-header h3 { margin: 0; }
 
-.dashboard-list {
-    list-style: none;
-    padding: 0;
-    margin: 5px 0 0 0;
-    font-size: 14px;
-}
-
-.dashboard-list li {
-    padding: 8px 12px;
-    background: var(--bg-input);
-    border-left: 4px solid var(--border);
-    margin-bottom: 6px;
-    border-radius: 0 4px 4px 0;
-    display: flex;
-    justify-content: space-between;
-}
-
+.dashboard-list { list-style: none; padding: 0; margin: 5px 0 0; font-size: 14px; }
+.dashboard-list li { padding: 8px 12px; background: var(--bg-input); border-left: 4px solid var(--border); margin-bottom: 6px; border-radius: 0 6px 6px 0; display: flex; justify-content: space-between; }
 #listeEntschuldigt li { border-left-color: var(--success); }
 #listeAbgemeldet li { border-left-color: var(--warning); }
 #listeUnentschuldigt li { border-left-color: var(--danger); }
 
-.mini-tabelle th, .mini-tabelle td {
-    padding: 8px 10px;
-    font-size: 14px;
-}
+.mini-tabelle th, .mini-tabelle td { padding: 8px 10px; font-size: 14px; }
 
-.todo-box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+.todo-box { display: flex; flex-direction: column; gap: 10px; }
+.todo-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+.alert-warning { background: #fbf1d4; border: 1px solid var(--kreide); color: #5c4300; }
+.badge-count { background: var(--tafel); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; }
 
-.todo-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 14px;
-}
+.quick-links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.class-panel-btn { text-align: left; padding: 12px; font-size: 14px; }
+.class-panel-btn:hover { border-color: var(--primary); background: var(--success-soft); }
 
-.alert-warning {
-    background-color: rgba(245, 158, 11, 0.12);
-    border: 1px solid var(--warning);
-    color: var(--warning);
-}
+/* ---------- Popup ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(29, 39, 35, .55); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+.modal-box { width: 100%; max-width: 450px; box-shadow: 0 12px 30px rgba(0,0,0,.25); margin: 0; }
+.modal-box select { width: 100%; margin-top: 4px; }
 
-.badge-count {
-    background: var(--warning);
-    color: var(--bg-main);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-}
+/* ---------- Noten ---------- */
+.note-chip { display: inline-block; margin: 0 6px 4px 0; padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); font-weight: 600; }
+.note-chip small { color: var(--muted); margin-left: 3px; }
+.note-del { background: none; border: 0; color: var(--danger); cursor: pointer; margin-left: 4px; }
+.note-form { display: flex; gap: 6px; align-items: center; }
+.note-form input { width: 70px; }
 
-.quick-links-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+/* ---------- Layout im FuxNoten-Stil ---------- */
+.mute { color: var(--muted); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.tab { background: var(--kreide); color: #2b2300; border: 1px solid #d9b92f; border-bottom-width: 3px; border-radius: 6px 6px 0 0; padding: 10px 20px; cursor: pointer; font: inherit; font-weight: 600; }
+.tab.on { background: var(--tafel); color: #fff; border-color: var(--tafel); }
 
-.class-panel-btn {
-    text-align: left;
-    padding: 12px;
-    font-size: 14px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-}
+.panel-title { background: var(--tafel); color: #fff; padding: 14px 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panel-title h2 { color: #fff; margin: 0; }
+.panel-title .btn { background: var(--kreide); color: #2b2300; border-color: transparent; }
+.panel-title .btn-danger { background: var(--danger); color: #fff; }
+.aktionen { display: flex; gap: 8px; flex-wrap: wrap; }
+.toolbar { background: #fff; border: 1px solid var(--border); border-top: 0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; border-radius: 0 0 8px 8px; }
+.datum-nav { display: flex; gap: 4px; }
 
-.class-panel-btn:hover {
-    border-color: var(--primary);
-    background: rgba(2, 132, 199, 0.1);
-}
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+.panel-head { background: var(--tafel); color: #fff; text-align: center; padding: 10px; font-weight: 600; }
+.panel-body { padding: 14px; }
+.dashboard-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 1050px) { .dashboard-grid3 { grid-template-columns: 1fr; } }
+.plan-zeile { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 6px; background: var(--bg-input); border-radius: 6px; }
+
+.thema-hinweis { display: none; margin-top: 8px; padding: 8px 12px; border: 1px solid var(--danger); border-radius: 6px; color: var(--danger); }
+
+/* ---------- Kippschalter Anwesend / Abwesend ---------- */
+.schueler-item { gap: 10px; justify-content: flex-start; }
+.schueler-item .nr { width: 22px; color: var(--muted); }
+.schueler-item .sname { flex: 1; font-weight: 600; }
+.kipp { position: relative; display: inline-block; margin: 0; }
+.kipp input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+.kipp-ui { display: inline-flex; align-items: center; gap: 6px; flex-direction: row; min-width: 78px; padding: 3px 10px 3px 4px; border-radius: 999px; background: var(--danger); color: #fff; font-weight: 700; font-size: 13px; }
+.kipp-ui::before { content: ""; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+.kipp-ui::after { content: "Abw."; }
+.kipp input:checked + .kipp-ui { background: var(--success); flex-direction: row-reverse; padding: 3px 4px 3px 10px; }
+.kipp input:checked + .kipp-ui::after { content: "Anw."; }
+.kipp input:focus-visible + .kipp-ui { outline: 2px solid var(--tafel); outline-offset: 2px; }
+.kipp input:disabled { cursor: not-allowed; }
+.kipp input:disabled + .kipp-ui { opacity: .55; }
+
+/* ---------- Sekretariat-Alarm ---------- */
+.sek-banner { position: sticky; top: 0; z-index: 10000; background: var(--danger); color: #fff; padding: 12px 20px; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 16px; animation: sekblink 1.2s ease-in-out infinite; }
+.sek-banner span { flex: 1; }
+@keyframes sekblink { 50% { background: #8f2a24; } }
+@media (prefers-reduced-motion: reduce) { .sek-banner { animation: none; } }
