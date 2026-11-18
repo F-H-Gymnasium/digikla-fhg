@@ -53,7 +53,12 @@
                 <div class="panel"><div class="panel-head">Stundenplan <span id="planTitel"></span></div><div class="panel-body" id="meinPlanListe"></div></div>
                 <div class="panel"><div class="panel-head">Aufgaben</div><div class="panel-body">
                     <div class="todo-item alert-warning"><span>Nicht signierter Unterricht</span><span class="badge-count" id="countUnsigniert">0</span></div>
-                    <div id="offeneListe" style="margin-top:10px;"></div></div></div>
+                    <div id="offeneListe" style="margin-top:10px;"></div>
+                    <div id="klasseAbwBox" style="display:none;margin-top:18px;">
+                        <div class="todo-item alert-warning"><span>Abwesenheiten meiner Klasse</span><span class="badge-count" id="countKlasseAbw">0</span></div>
+                        <p style="font-size:13px;color:var(--muted);margin:6px 0;">Gemeldet (gelb) und unentschuldigt (rot) – bearbeiten und auf „Entschuldigt“ stellen:</p>
+                        <div id="klasseAbwListe"></div>
+                    </div></div></div>
                 <div class="panel"><div class="panel-head">Informationen</div><div class="panel-body">
                     <h4>Klassenbuch</h4><div class="quick-links-grid" id="meineKlassenLinks"></div>
                     <h4 style="margin-top:18px;">Stundenplan anderer Klassen</h4>
@@ -66,7 +71,7 @@
             <div class="toolbar"><button class="btn btn-danger" onclick="oeffneAbwesenheitModal()">👤 Abwesenheit hinzufügen</button></div>
             <div class="dashboard-grid3">
                 <div class="panel"><div class="panel-head">✔ Entschuldigt</div><div class="panel-body"><ul id="listeEntschuldigt" class="dashboard-list"></ul></div></div>
-                <div class="panel"><div class="panel-head">⏳ Abgemeldet / Ausflug</div><div class="panel-body"><ul id="listeAbgemeldet" class="dashboard-list"></ul></div></div>
+                <div class="panel"><div class="panel-head">🟡 Gemeldet</div><div class="panel-body"><ul id="listeAbgemeldet" class="dashboard-list"></ul></div></div>
                 <div class="panel"><div class="panel-head">❌ Unentschuldigt</div><div class="panel-body"><ul id="listeUnentschuldigt" class="dashboard-list"></ul></div></div>
             </div>
         </section>
@@ -190,6 +195,11 @@
                     <button class="btn btn-primary" style="margin-top:20px;" onclick="speichereGrundeinstellungen()">Grundeinstellungen sichern</button>
                 </div>
                 <div class="card">
+                    <h3>Gründe der Abwesenheit</h3>
+                    <div id="gruendeListe"></div>
+                    <div style="display:flex;gap:8px;margin-top:10px;"><input type="text" id="neuerGrund" placeholder="Neuer Grund, z. B. Krank" style="flex:1;"><button class="btn btn-primary" onclick="grundHinzufuegen()">Hinzufügen</button></div>
+                </div>
+                <div class="card">
                     <h3>Lehrer-Profil anlegen</h3>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:15px;">
                         <div><label>Voller Name:</label><input type="text" id="setupLehrerName" placeholder="Herr Mustermann" style="width:100%;"></div>
@@ -204,24 +214,24 @@
 </div>
 
 <div id="abwesenheitModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box card">
-        <h3>Abwesenheit eintragen</h3>
-        <p style="font-size:13px;color:var(--muted);">Gilt für alle noch nicht signierten Stunden des gewählten Tages.</p>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:15px;">
-            <div><label>Klasse:</label><select id="modalKlassenAuswahl" onchange="modalLadeSchueler()"></select></div>
-            <div><label>Schüler:</label><select id="modalSchuelerAuswahl"></select></div>
-            <div><label>Status:</label>
-                <select id="modalStatusAuswahl">
-                    <option value="Entschuldigt">Entschuldigt</option>
-                    <option value="Verspätet">Verspätet</option>
-                    <option value="Freigestellt">Freigestellt</option>
-                    <option value="Unentschuldigt">Unentschuldigt fehlt</option>
-                    <option value="Anwesend">Anwesend (zurücksetzen)</option>
-                </select></div>
+    <div class="modal-box card abw-modal">
+        <h3 id="abwTitel" style="margin-bottom:14px;">ABWESENHEIT</h3>
+        <div class="farbwahl">
+            <button type="button" class="farbe f-u on" data-s="Unentschuldigt" onclick="farbeWaehlen('Unentschuldigt')">Unentschuldigt</button>
+            <button type="button" class="farbe f-g" data-s="Gemeldet" onclick="farbeWaehlen('Gemeldet')">Gemeldet</button>
+            <button type="button" class="farbe f-e" data-s="Entschuldigt" onclick="farbeWaehlen('Entschuldigt')">Entschuldigt</button>
         </div>
-        <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
-            <button class="btn btn-secondary" onclick="schliesseAbwesenheitModal()">Abbrechen</button>
-            <button class="btn btn-primary" onclick="speichereAbwesenheitAusModal()">Speichern</button>
+        <div class="abw-feld"><label for="abwSchueler">Schüler</label><select id="abwSchueler" onchange="abwSchuelerGeaendert()"></select></div>
+        <div class="abw-feld"><label for="abwArt">Abwesenheitsart</label>
+            <select id="abwArt" onchange="abwArtGeaendert()"><option value="Tag">Tag</option><option value="Stunden">Stunden</option><option value="Zeitraum">Zeitraum</option></select></div>
+        <div class="abw-feld"><label for="abwVon">Datum</label><input type="date" id="abwVon"></div>
+        <div class="abw-feld" id="abwBisBox" style="display:none;"><label for="abwBis">bis</label><input type="date" id="abwBis"></div>
+        <div class="abw-feld" id="abwStundenBox" style="display:none;"><label>Stunden</label><div id="abwStunden" class="stunden-kipp"></div></div>
+        <div class="abw-feld"><label for="abwGrund">Grund der Abwesenheit</label><select id="abwGrund"></select></div>
+        <div class="abw-feld"><label for="abwNotiz">Notiz zur Abwesenheit</label><textarea id="abwNotiz" placeholder="Bei Bedarf hier eine Notiz eintragen" style="height:70px;"></textarea></div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="schliesseAbwesenheitModal()">Abbrechen</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="speichereAbwesenheit()">Speichern</button>
         </div>
     </div>
 </div>
